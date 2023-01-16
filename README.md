@@ -10,6 +10,7 @@ granularity with respect to this field. There are two levels of granularity: a p
 contains multiple lower levels of categories such as "cakes" and "pizza". How to map one type to the other is
 represented by the `mapping.yml` file.
 ### Assignment
+Use either Python or R to complete the following:
 1. Merge the two CSV files into a single dataset. Use the mapping YAML file to normalize the type field to a product
 line.
 2. Filter the data such that it only contains transactions for 1/2/2023.
