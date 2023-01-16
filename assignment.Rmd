@@ -1,5 +1,5 @@
 ---
-title: "assignment"
+title: "Data Analyst Assignment"
 author: "Rebecca Cockroft"
 date: "2023-01-16"
 output: html_document
