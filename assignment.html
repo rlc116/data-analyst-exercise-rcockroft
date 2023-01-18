@@ -434,16 +434,13 @@ str(detroit)</code></pre>
 ##   ..   type = col_character()
 ##   .. )
 ##  - attr(*, &quot;problems&quot;)=&lt;externalptr&gt;</code></pre>
-<pre class="r"><code># converting ny timestamp to date/time (POSIX) format
-# note that we must put the timezone as null, otherwise as.POSIXct will covert it from EST to UTC (which the detroit purchases are coded as)
+<pre class="r"><code># NY timestamp is not in date/time (POSIX) format, let&#39;s change that 
+# Detroit purchases are automatically coded as UTC when read in, let&#39;s change this to EST to be consistent with NY. 
 
-ny$purchase_timestamp &lt;- as.POSIXct(ny$purchase_timestamp, tz = &quot;NULL&quot;)</code></pre>
-<pre><code>## Warning in strptime(xx, f, tz = tz): unknown timezone &#39;NULL&#39;</code></pre>
-<pre><code>## Warning in as.POSIXct.POSIXlt(x): unknown timezone &#39;NULL&#39;</code></pre>
-<pre><code>## Warning in strptime(x, f, tz = tz): unknown timezone &#39;NULL&#39;</code></pre>
-<pre><code>## Warning in as.POSIXct.POSIXlt(as.POSIXlt(x, tz, ...), tz, ...): unknown timezone
-## &#39;NULL&#39;</code></pre>
-<pre class="r"><code># make amount numeric for detroit 
+detroit$purchase_timestamp &lt;- as.POSIXct(as.character(detroit$purchase_timestamp), tz = &quot;EST&quot;)
+ny$purchase_timestamp &lt;- as.POSIXct(ny$purchase_timestamp, tz = &quot;EST&quot;)
+
+# make amount numeric for detroit 
 
 detroit$amount &lt;- parse_number(detroit$amount)
   
@@ -453,6 +450,7 @@ full_data &lt;-
   rbind(detroit, ny) %&gt;% 
   
   # dropping &quot;id&quot; column because it&#39;s redundant to R&#39;s index and is misaligned after merge 
+  
   select(-id)
 
 # previewing data 
@@ -486,7 +484,7 @@ table(full_data$type)</code></pre>
 <pre class="r"><code># only selecting rows with timestamp on 1/2/2023
 
 jan_two &lt;- full_data %&gt;%
-  filter(as.Date(purchase_timestamp) == as.Date(&quot;2023-01-02&quot;))</code></pre>
+  filter(as.Date(as.character(purchase_timestamp)) == as.Date(&quot;2023-01-02&quot;))</code></pre>
 </div>
 <div id="problem-3-graph" class="section level2">
 <h2>Problem 3 (Graph)</h2>
@@ -548,11 +546,15 @@ ggplot(jan_two,
   
   # creating labels for each hour 
   
-  scale_x_datetime(date_breaks = &quot;1 hour&quot;, date_labels = &quot;%H:%M&quot;, expand = c(.05, 0, .01, 0)) +
+  scale_x_datetime(date_breaks = &quot;1 hour&quot;, 
+                   date_labels = &quot;%H:%M&quot;, 
+                   expand = c(.05, 0, .01, 0)) +
   
   # setting x-axis/y-axis/title labels 
   
-  labs(x = &quot;Time&quot;, y = &quot;Number of Purchases&quot;, title = &quot;Purchases by Hour on 1/2/2023&quot;) + 
+  labs(x = &quot;Time&quot;, 
+       y = &quot;Number of Purchases&quot;,
+       title = &quot;Purchases by Hour on 1/2/2023&quot;) + 
   
   # setting theme 
   

@@ -36,10 +36,11 @@ str(ny)
 ```
 ```{r}
 
-# converting ny timestamp to date/time (POSIX) format
-# note that we must put the timezone as null, otherwise as.POSIXct will covert it from EST to UTC (which the detroit purchases are coded as)
+# NY timestamp is not in date/time (POSIX) format, let's change that 
+# Detroit purchases are automatically coded as UTC when read in, let's change this to EST to be consistent with NY. 
 
-ny$purchase_timestamp <- as.POSIXct(ny$purchase_timestamp, tz = "NULL")
+detroit$purchase_timestamp <- as.POSIXct(as.character(detroit$purchase_timestamp), tz = "EST")
+ny$purchase_timestamp <- as.POSIXct(ny$purchase_timestamp, tz = "EST")
 
 # make amount numeric for detroit 
 
@@ -51,6 +52,7 @@ full_data <-
   rbind(detroit, ny) %>% 
   
   # dropping "id" column because it's redundant to R's index and is misaligned after merge 
+  
   select(-id)
 
 # previewing data 
@@ -80,7 +82,7 @@ table(full_data$type)
 # only selecting rows with timestamp on 1/2/2023
 
 jan_two <- full_data %>%
-  filter(as.Date(purchase_timestamp) == as.Date("2023-01-02"))
+  filter(as.Date(as.character(purchase_timestamp)) == as.Date("2023-01-02"))
 ```
 
 ## Problem 3 (Graph)
@@ -147,11 +149,15 @@ ggplot(jan_two,
   
   # creating labels for each hour 
   
-  scale_x_datetime(date_breaks = "1 hour", date_labels = "%H:%M", expand = c(.05, 0, .01, 0)) +
+  scale_x_datetime(date_breaks = "1 hour", 
+                   date_labels = "%H:%M", 
+                   expand = c(.05, 0, .01, 0)) +
   
   # setting x-axis/y-axis/title labels 
   
-  labs(x = "Time", y = "Number of Purchases", title = "Purchases by Hour on 1/2/2023") + 
+  labs(x = "Time", 
+       y = "Number of Purchases",
+       title = "Purchases by Hour on 1/2/2023") + 
   
   # setting theme 
   
